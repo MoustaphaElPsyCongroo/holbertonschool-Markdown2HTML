@@ -80,7 +80,6 @@ def convert_surrounded(line, surrounder, tag):
         line = re.sub(
             rf'{surrounder}{surrounder}(?=.*[ \n\w])', f'</{tag}>', line, 1)
     else:
-        print(line)
         initial_split = line.split(f'{surrounder[0]}{surrounder[0]}')
         before_surrounder = initial_split[0]
         try:
