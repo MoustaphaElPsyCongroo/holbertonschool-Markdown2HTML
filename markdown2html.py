@@ -70,8 +70,9 @@ def parse_line(line):
 
 def convert_surrounded(line, surrounder, tag):
     """Convert surrounded (bold or emphasis etc) markdown to html"""
-    line = re.sub(rf'{surrounder}{surrounder}(?=\w)', f'<{tag}>', line)
-    line = re.sub(rf'{surrounder}{surrounder}(?=.*[ \n])', f'</{tag}>', line)
+    line = re.sub(rf'{surrounder}{surrounder}(?=\w)', f'<{tag}>', line, 1)
+    line = re.sub(
+        rf'{surrounder}{surrounder}(?=.*[ \n\w])', f'</{tag}>', line, 1)
     return line
 
 
