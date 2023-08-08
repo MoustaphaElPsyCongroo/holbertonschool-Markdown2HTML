@@ -50,15 +50,28 @@ def main():
 def parse_line(line):
     """Search a line for markdown syntax"""
     identifiers = ('#', '-', '*')
+    is_heading = False
 
-    if line[0] not in identifiers:
-        line = extract_multiline_items(line, None, 'p')
     if '# ' in line:
+        is_heading = True
         line = convert_headings(line)
+    if '**' in line:
+        line = convert_surrounded(line, r'\*', 'b')
+    if '__' in line:
+        line = convert_surrounded(line, '_', 'em')
+    if line[0] not in identifiers and is_heading is False:
+        line = extract_multiline_items(line, None, 'p')
     if '- ' in line:
         line = extract_multiline_items(line, '- *', 'ul')
     if '* ' in line:
         line = extract_multiline_items(line, r'\* *', 'ol')
+    return line
+
+
+def convert_surrounded(line, surrounder, tag):
+    """Convert surrounded (bold or emphasis etc) markdown to html"""
+    line = re.sub(rf'{surrounder}{surrounder}(?=\w)', f'<{tag}>', line)
+    line = re.sub(rf'{surrounder}{surrounder}(?=.*[ \n])', f'</{tag}>', line)
     return line
 
 
@@ -101,10 +114,6 @@ def extract_multiline_items(line, type, tag):
         'type': tag,
         'item': line
     }
-
-
-def extract_ordered_lists(line):
-    """Extract ordered list items"""
 
 
 if __name__ == '__main__':
