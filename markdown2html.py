@@ -15,12 +15,36 @@ def main():
     try:
         with open(md_file, 'r', encoding='utf-8') as md:
             with open(html_file, 'w', encoding='utf-8') as html:
+                multilines = ('- ', '* ')
+                converted = None
+                items = {
+                    'type': None,
+                    'elems': []
+                }
+
                 while True:
                     line = md.readline()
 
-                    if not line:
+                    if not line and not items['elems']:
                         break
-                    converted = convert_line(line)
+
+                    if (
+                        (line.strip() is False
+                         or not any(s in line for s in multilines)
+                         or not line
+                         )
+                            and items['elems']
+                    ):
+                        converted = convert_multiline(items)
+                        items['type'] = None
+                        items['elems'] = []
+                    else:
+                        converted = parse_line(line)
+
+                    if isinstance(converted, dict):
+                        items['type'] = converted['type']
+                        items['elems'].append(converted['item'])
+                        continue
                     html.write(converted)
 
             pass
@@ -28,13 +52,45 @@ def main():
         exit(f'Missing {md_file}')
 
 
-def convert_line(line):
-    """Converts a markdown line to an html one"""
-    if '#' in line:
-        heading_level = line.count('#')
-        line = re.sub('(#+) +', f'<h{heading_level}>', line)
-        line = line.replace('\n', f'</h{heading_level}>\n')
+def parse_line(line):
+    """Search a line for markdown syntax"""
+    if '# ' in line:
+        line = convert_headings(line)
+    if '- ' in line:
+        line = extract_unordered_lists(line)
     return line
+
+
+def convert_multiline(items):
+    """Create html for multiline items"""
+    type = items['type']
+    elems = items['elems']
+
+    line = f'<{type}>\n'
+
+    if 'type' != 'p':
+        for elem in elems:
+            line += f'<li>{elem}</li>\n'
+        line += f'</{type}>\n'
+    return line
+
+
+def convert_headings(line):
+    """Convert markdown headings to html"""
+    heading_level = line.count('#')
+    line = re.sub('(#+) +', f'<h{heading_level}>', line)
+    line = line.replace('\n', f'</h{heading_level}>\n')
+    return line
+
+
+def extract_unordered_lists(line):
+    """Extract unordered list items"""
+    line = re.sub('- *', '', line)
+    line = line.replace('\n', '')
+    return {
+        'type': 'ul',
+        'item': line
+    }
 
 
 if __name__ == '__main__':
