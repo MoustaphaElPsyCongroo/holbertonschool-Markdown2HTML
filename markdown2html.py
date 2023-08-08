@@ -7,7 +7,7 @@ argslen = len(argv) - 1
 
 def main():
     if argslen < 2:
-        exit('Usage: ./markdown2html.py README.md')
+        exit('Usage: ./markdown2html.py README.md README.html')
 
     md_file = argv[1]
     try:
