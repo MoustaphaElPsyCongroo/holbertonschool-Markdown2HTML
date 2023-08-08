@@ -2,6 +2,7 @@
 """Markdown to html parser"""
 from sys import argv, exit
 import re
+import hashlib
 
 argslen = len(argv) - 1
 
@@ -59,6 +60,10 @@ def parse_line(line):
         line = convert_surrounded(line, r'\*', 'b')
     if '__' in line:
         line = convert_surrounded(line, '_', 'em')
+    if '[[' in line:
+        line = convert_surrounded(line, '[]', 'md5')
+    if '((' in line:
+        line = convert_surrounded(line, '()', 'remove_c')
     if line[0] not in identifiers and is_heading is False:
         line = extract_multiline_items(line, None, 'p')
     if '- ' in line:
@@ -70,9 +75,27 @@ def parse_line(line):
 
 def convert_surrounded(line, surrounder, tag):
     """Convert surrounded (bold or emphasis etc) markdown to html"""
-    line = re.sub(rf'{surrounder}{surrounder}(?=.)', f'<{tag}>', line, 1)
-    line = re.sub(
-        rf'{surrounder}{surrounder}(?=.*[ \n\w])', f'</{tag}>', line, 1)
+    if surrounder in (r'\*', '_'):
+        line = re.sub(rf'{surrounder}{surrounder}(?=.)', f'<{tag}>', line, 1)
+        line = re.sub(
+            rf'{surrounder}{surrounder}(?=.*[ \n\w])', f'</{tag}>', line, 1)
+    else:
+        print(line)
+        initial_split = line.split(f'{surrounder[0]}{surrounder[0]}')
+        before_surrounder = initial_split[0]
+        try:
+            to_replace = initial_split[1].split(
+                f'{surrounder[1]}{surrounder[1]}')[0]
+            after_surrounder = line.split(f'{surrounder[1]}{surrounder[1]}')[1]
+        except IndexError:
+            return line
+
+        if tag == 'md5':
+            encoded = to_replace.encode('utf-8')
+            to_replace = hashlib.md5(encoded).hexdigest()
+        if tag == 'remove_c':
+            to_replace = re.sub('c', '', to_replace, flags=re.IGNORECASE)
+        line = before_surrounder + to_replace + after_surrounder
     return line
 
 

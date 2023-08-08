@@ -41,24 +41,18 @@ with __2 lines__
 
 **Or in bold**
 
+# With md5
+# My title
+- He**l**lo
+- Bye
 
-# Welcome __to__ Holberton
+Hello
 
-Nice school!
+I'm **a** text
+with __2 lines__
 
-- Web**stack**
-- AR/VR
-- ML
-- Low level
-- __and more__
+((I will live in Caracas))
 
-It's a **super __cool__** project.
-Like really. no?
+But it's [[private]]
 
-## Tasks
-
-* read __**requirements**__
-* quiz time
-* tasks
-
-In this project you will learn how to translate a .
+So cool!
