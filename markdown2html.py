@@ -29,7 +29,6 @@ def main():
                         break
 
                     if (line.strip() == '' or not line) and items['elems']:
-                        print('multiline items: ', items)
                         converted = convert_multiline(items)
                         items['type'] = None
                         items['elems'] = []
@@ -67,8 +66,6 @@ def convert_multiline(items):
     """Create html for multiline items"""
     type = items['type']
     elems = items['elems']
-
-    print('elems: ', elems)
 
     line = f'<{type}>\n'
 
