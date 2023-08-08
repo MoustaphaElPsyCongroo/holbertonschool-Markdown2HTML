@@ -28,18 +28,12 @@ def main():
                     if not line and not items['elems']:
                         break
 
-                    if (
-                        (line.strip() == ''
-                         or not any(s in line for s in multilines)
-                         or not line
-                         )
-                            and items['elems']
-                    ):
+                    if (line.strip() == '' or not line) and items['elems']:
+                        print('multiline items: ', items)
                         converted = convert_multiline(items)
                         items['type'] = None
                         items['elems'] = []
                     elif line.strip() == '':
-                        html.write('\n')
                         continue
                     else:
                         converted = parse_line(line)
@@ -49,7 +43,6 @@ def main():
                         items['elems'].append(converted['item'])
                         continue
                     html.write(converted)
-
             pass
     except FileNotFoundError:
         exit(f'Missing {md_file}')
@@ -75,6 +68,8 @@ def convert_multiline(items):
     type = items['type']
     elems = items['elems']
 
+    print('elems: ', elems)
+
     line = f'<{type}>\n'
 
     if type != 'p':
@@ -85,8 +80,8 @@ def convert_multiline(items):
         line = '<p>'
         for i in range(len(elems)):
             br = ''
-            if i > 0 and i < len(elems) - 1:
-                br = '<br />'
+            if len(elems) > 1 and i < len(elems) - 1:
+                br = ' <br /> '
             line += elems[i] + br
         line += '</p>\n'
     return line
