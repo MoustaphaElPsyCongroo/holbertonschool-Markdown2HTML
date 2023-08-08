@@ -57,7 +57,9 @@ def parse_line(line):
     if '# ' in line:
         line = convert_headings(line)
     if '- ' in line:
-        line = extract_unordered_lists(line)
+        line = extract_multiline_items(line, '- *', 'ul')
+    if '* ' in line:
+        line = extract_multiline_items(line, '\* *', 'ol')
     return line
 
 
@@ -83,14 +85,19 @@ def convert_headings(line):
     return line
 
 
-def extract_unordered_lists(line):
-    """Extract unordered list items"""
-    line = re.sub('- *', '', line)
+def extract_multiline_items(line, type, tag):
+    """Extract multiline items: unordered lists, ordered lists"""
+    if type != 'p':
+        line = re.sub(type, '', line)
     line = line.replace('\n', '')
     return {
-        'type': 'ul',
+        'type': tag,
         'item': line
     }
+
+
+def extract_ordered_lists(line):
+    """Extract ordered list items"""
 
 
 if __name__ == '__main__':

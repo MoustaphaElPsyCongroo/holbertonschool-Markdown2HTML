@@ -13,3 +13,6 @@ Test on this README:
 
 - Hello
 - Bye
+
+* Hello
+* Bye
