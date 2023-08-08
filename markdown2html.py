@@ -16,7 +16,6 @@ def main():
     try:
         with open(md_file, 'r', encoding='utf-8') as md:
             with open(html_file, 'w', encoding='utf-8') as html:
-                multilines = ('- ', '* ')
                 converted = None
                 items = {
                     'type': None,
