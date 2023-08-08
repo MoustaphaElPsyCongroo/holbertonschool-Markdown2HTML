@@ -29,7 +29,7 @@ def main():
                         break
 
                     if (
-                        (line.strip() is False
+                        (line.strip() == ''
                          or not any(s in line for s in multilines)
                          or not line
                          )
@@ -38,6 +38,9 @@ def main():
                         converted = convert_multiline(items)
                         items['type'] = None
                         items['elems'] = []
+                    elif line.strip() == '':
+                        html.write('\n')
+                        continue
                     else:
                         converted = parse_line(line)
 
@@ -54,12 +57,16 @@ def main():
 
 def parse_line(line):
     """Search a line for markdown syntax"""
+    identifiers = ('#', '-', '*')
+
+    if line[0] not in identifiers:
+        line = extract_multiline_items(line, None, 'p')
     if '# ' in line:
         line = convert_headings(line)
     if '- ' in line:
         line = extract_multiline_items(line, '- *', 'ul')
     if '* ' in line:
-        line = extract_multiline_items(line, '\* *', 'ol')
+        line = extract_multiline_items(line, r'\* *', 'ol')
     return line
 
 
@@ -70,10 +77,18 @@ def convert_multiline(items):
 
     line = f'<{type}>\n'
 
-    if 'type' != 'p':
+    if type != 'p':
         for elem in elems:
-            line += f'<li>{elem}</li>\n'
+            line += f'\t<li>{elem}</li>\n'
         line += f'</{type}>\n'
+    else:
+        line = '<p>'
+        for i in range(len(elems)):
+            br = ''
+            if i > 0 and i < len(elems) - 1:
+                br = '<br />'
+            line += elems[i] + br
+        line += '</p>\n'
     return line
 
 
@@ -87,7 +102,7 @@ def convert_headings(line):
 
 def extract_multiline_items(line, type, tag):
     """Extract multiline items: unordered lists, ordered lists"""
-    if type != 'p':
+    if type is not None:
         line = re.sub(type, '', line)
     line = line.replace('\n', '')
     return {
